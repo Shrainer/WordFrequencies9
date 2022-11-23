@@ -19,7 +19,7 @@ def main():
 def process_text(text):
     nltk.download('stopwords')
     text = text.lower()
-    special_chars = string.punctuation + '\n\xa0«»\t—-–…' + string.digits
+    special_chars = string.punctuation + '\n\xa0«»\t—–…' + string.digits
     r_stopwords = stopwords.words("russian")
     text = "".join([character if character not in special_chars else " " for character in text])
     text = text.split()
