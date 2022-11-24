@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 import pymorphy2
 import string
 import nltk
@@ -8,12 +9,16 @@ from PIL import Image
 
 
 def main():
-    file_name = "test.txt"
-    file = open(file_name, "r", encoding="utf-8")
+    try:
+        script_file_name, mask_name = sys.argv[1:3]
+    except ValueError:
+        raise SystemExit(f"Usage: {sys.argv[0]} <script_file_name> <mask_name>")
+    file = open(script_file_name, "r", encoding="utf-8")
     text = file.read()
+    file.close()
     text = process_text(text)
     text = normalise_text(text)
-    generate_cloud(text)
+    generate_cloud(text, mask_name)
 
 
 def process_text(text):
@@ -29,12 +34,15 @@ def process_text(text):
 
 def normalise_text(text):
     morph = pymorphy2.MorphAnalyzer()
-    text = " ".join(list(map(lambda x: morph.parse(x)[0].normal_form, text)))
+
+    def normaliser(word):
+        return morph.parse(word)[0].normal_form
+    text = " ".join(list(map(normaliser, text)))
     return text
 
 
-def generate_cloud(text):
-    mask = np.array(Image.open("mask.jpg"))
+def generate_cloud(text, mask_name):
+    mask = np.array(Image.open(mask_name))
     cloud = WordCloud(mask=mask).generate(text)
     cloud.to_file("picture.png")
 
